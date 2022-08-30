@@ -6,7 +6,7 @@ type ExcelData struct {
 	Date           string
 	Plate          string
 	Direction      string
-	Varieties      string
+	Variety        string
 	Symbol         string
 	YesterdayClose float64
 	TodayClose     float64
@@ -21,9 +21,11 @@ func (e ExcelDatas) MergeRepeatSymbol() ExcelDatas {
 	m := make(map[string]*ExcelData)
 	for _, v := range e {
 		if m[v.Symbol] == nil {
+			m[v.Symbol] = v
+		} else {
 			m[v.Symbol].Size += v.Size
 		}
-		m[v.Symbol] = v
+
 	}
 	var newE ExcelDatas
 	for _, v := range m {
@@ -32,7 +34,6 @@ func (e ExcelDatas) MergeRepeatSymbol() ExcelDatas {
 	return newE
 }
 
-func (e ExcelData) ToSlice() []any {
-	// TODO
-	return []any{}
+func (e ExcelData) ToSlice(plateName string) []interface{} {
+	return []any{e.Date, plateName, e.Direction, e.Variety, e.Symbol, "", e.TodayClose, e.Size, "", e.TodayRatio, "", ""}
 }

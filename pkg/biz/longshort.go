@@ -25,6 +25,20 @@ type LongShortUsecase struct {
 	orderRepo PreOrderRepo
 }
 
+func NewLongShortUsecase(
+	plates []string,
+	ratioRepo LongShortRatioRepo,
+	priceRepo SymbolPriceRepo,
+	orderRepo PreOrderRepo,
+) *LongShortUsecase {
+	return &LongShortUsecase{
+		plates:    plates,
+		ratioRepo: ratioRepo,
+		priceRepo: priceRepo,
+		orderRepo: orderRepo,
+	}
+}
+
 func (u *LongShortUsecase) GetDailyData(date *time.Time) (map[string][]*model.ExcelData, error) {
 	plateMap := make(map[string][]*model.ExcelData)
 	for _, plate := range u.plates {
@@ -43,7 +57,7 @@ func (u *LongShortUsecase) GetDailyData(date *time.Time) (map[string][]*model.Ex
 		plateMap[plate] = excelDatas
 
 	}
-	return nil, nil
+	return plateMap, nil
 }
 
 func (u *LongShortUsecase) getDailyData(date *time.Time, order *model.PreOrder) ([]*model.ExcelData, error) {
@@ -53,13 +67,15 @@ func (u *LongShortUsecase) getDailyData(date *time.Time, order *model.PreOrder) 
 		return nil, err
 	}
 	priceMap := prices.GetMap()
-	ratios, err := u.ratioRepo.Query(&model.LongShortFilter{TradingAt: date.Unix(), Varieties: []string{order.Long, order.Short}})
+	longVariety := utils.ParseVarietyFromSymbol(order.Long)
+	shortVariety := utils.ParseVarietyFromSymbol(order.Short)
+	ratios, err := u.ratioRepo.Query(&model.LongShortFilter{TradingAt: date.Unix(), Varieties: []string{utils.ParseVarietyFromSymbol(longVariety), utils.ParseVarietyFromSymbol(shortVariety)}})
 	if err != nil {
 		return nil, err
 	}
 	ratioMap := ratios.GetMap()
-	data[0] = u.generateExcelData(priceMap[order.Long].ClosePrice, ratioMap[order.Long].Ratio, order, true)
-	data[1] = u.generateExcelData(priceMap[order.Short].ClosePrice, ratioMap[order.Short].Ratio, order, true)
+	data[0] = u.generateExcelData(priceMap[order.Long].ClosePrice, ratioMap[longVariety].Ratio, order, true)
+	data[1] = u.generateExcelData(priceMap[order.Short].ClosePrice, ratioMap[shortVariety].Ratio, order, false)
 	return data, nil
 }
 
@@ -82,7 +98,7 @@ func (u *LongShortUsecase) generateExcelData(price float64, ratio float64, order
 		Date:       order.CreateDate.Format(utils.DateLayout),
 		Plate:      order.PlateName,
 		Direction:  direction,
-		Varieties:  utils.ParseVarietyFromSymbol(symbol),
+		Variety:    utils.ParseVarietyFromSymbol(symbol),
 		Symbol:     symbol,
 		TodayClose: price,
 		Size:       size,

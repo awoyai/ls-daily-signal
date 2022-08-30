@@ -15,7 +15,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&flagconf, "conf", "../../configs/config.yaml", "-conf ./config.yaml")
+	flag.StringVar(&flagconf, "conf", "../configs/config.yaml", "-conf ./config.yaml")
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	var conf model.Data
+	var conf model.Conf
 	if err := c.Scan(&conf); err != nil {
 		panic(err)
 	}
@@ -42,13 +42,14 @@ func main() {
 	}
 	
 	var (
-		y, m, d = time.Now().Date()
-		date    = time.Date(y, m, d, 0, 0, 0, 0, time.Local)
+		// y, m, d = time.Now().Date()
+		// date    = time.Date(y, m, d, 0, 0, 0, 0, time.Local)
+		date    = time.Date(2022, 8, 25, 0, 0, 0, 0, time.Local)
 	)
 
 	if err := srv.CreateDailySignal(&date); err != nil {
 		log.Errorf("err: %+v", err)
 		panic(err)
 	}
-	defer close()
+	close()
 }

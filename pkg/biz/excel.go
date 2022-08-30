@@ -23,13 +23,27 @@ func (u *ExcelUsecase) SaveDaliyDateToExcel(plate string, data []*model.ExcelDat
 		log.Errorw("SetDaliyDate#OpenFile err", err)
 		panic(err)
 	}
+	defer f.Close()
 	sheetName := u.plateMap[plate]
-	lastIndex := f.GetSheetIndex(sheetName)
+	rows, err := f.GetRows(sheetName)
+	if err != nil {
+		return err
+	}
+	index := len(rows)
+	start := fmt.Sprintf("A%v", index+1)
 	var d  = model.ExcelDatas(data).MergeRepeatSymbol()
 	for _, v := range d {
-		lastIndex++
-		axis := fmt.Sprintf("A%v", lastIndex)
-		f.SetSheetRow(sheetName, axis, v.ToSlice())
+		index++
+		axis := fmt.Sprintf("A%v", index)
+		params := v.ToSlice(u.plateMap[v.Plate])
+		if err := f.SetSheetRow(sheetName, axis, &params); err != nil {
+			return err
+		}
+	}
+	end := fmt.Sprintf("A%v", index)
+	f.MergeCell(sheetName, start, end)
+	if err := f.Save(); err != nil {
+		return err
 	}
 	return nil
 }

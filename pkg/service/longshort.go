@@ -8,11 +8,11 @@ import (
 )
 
 type LongShrotService struct {
-	excelUc biz.ExcelUsecase
-	lsUc    biz.LongShortUsecase
+	excelUc *biz.ExcelUsecase
+	lsUc    *biz.LongShortUsecase
 }
 
-func NewExcelUsecase(excelUc biz.ExcelUsecase, lsUc biz.LongShortUsecase) *LongShrotService {
+func NewExcelUsecase(excelUc *biz.ExcelUsecase, lsUc *biz.LongShortUsecase) *LongShrotService {
 	return &LongShrotService{excelUc: excelUc, lsUc: lsUc}
 }
 
@@ -23,11 +23,10 @@ func (s *LongShrotService) CreateDailySignal(date *time.Time) error {
 	}
 	for k, v := range dataMap {
 		plateName, data := k, v
-		go func() {
-			if err := s.excelUc.SaveDaliyDateToExcel(plateName, data); err != nil {
-				log.Errorw("CreateDailySignal#SaveDaliyDateToExcel err", err)
-			}
-		}()
+		if err := s.excelUc.SaveDaliyDateToExcel(plateName, data); err != nil {
+			log.Errorw("CreateDailySignal#SaveDaliyDateToExcel err", err)
+		}
+
 	}
 	return nil
 }

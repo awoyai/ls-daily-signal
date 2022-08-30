@@ -15,5 +15,5 @@ func NewLongShortRatioRepo(db *xgorm.XGorm) *longShortRatioRepo {
 
 func (r *longShortRatioRepo) Query(f *model.LongShortFilter) (*model.LongShortRatios, error) {
 	var res *model.LongShortRatios
-	return res, r.db.db.Where("trading_at = ? and variety in ?", f.TradingAt, f.Varieties).Find(&res).Error
+	return res, r.db.db.Debug().Where("trading_at = ? and variety in ?", f.TradingAt, f.Varieties).Find(&res).Error
 }

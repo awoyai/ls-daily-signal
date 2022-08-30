@@ -1,0 +1,20 @@
+data:
+  driver: mysql
+  db_user: root
+  db_password: root
+  db_url: 127.0.0.1:3306
+  dry_run: false
+  max_idle_conns: 20
+  max_open_conns: 10
+  conn_max_life_time: 4h
+  db_name: xdata
+
+plate_config:
+  plate_name: { "black": "黑色", "two_meal": "两粕", "fg_sa": "玻璃纯碱" }
+  file_path: "./excel/2022信号.xlsx"
+  plate_symbols:
+    {
+      "black": ["i2301", "hc2301", "rb2301"],
+      "fg_sa": ["FG301", "SA301"],
+      "two_meal": ["RM301", "m2301"],
+    }

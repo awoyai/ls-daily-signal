@@ -9,11 +9,11 @@ type preOrderRepo struct {
 	db Data
 }
 
-func NewpreOrderRepo(db *xgorm.XGorm) *preOrderRepo {
+func NewPreOrderRepo(db *xgorm.XGorm) *preOrderRepo {
 	return &preOrderRepo{db: Data{db}}
 }
 
 func (r *preOrderRepo) Query(f *model.PreOrderFilter) ([]*model.PreOrder, error) {
 	var res []*model.PreOrder
-	return res, r.db.db.Where("create_date = date(?) and plate_name = ?", f.CreateDate, f.PlateName).Find(&res).Error
+	return res, r.db.db.Debug().Where("create_date = date(?) and plate_name = ?", f.CreateDate, f.PlateName).Find(&res).Error
 }
